@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integración de Agentes IA en Nitro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #CD995F;
+            --dark-gray: #2D3748;
+            --medium-gray: #4A5568;
+            --light-gray: #E2E8F0;
+            --teal: #38B2AC;
+            --purple: #9F7AEA;
+            --blue: #4299E1;
+            --green: #48BB78;
+            --red: #F56565;
+            --orange: #ED8936;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            color: var(--dark-gray);
+            overflow-x: hidden;
+        }
+        
+        .slide {
+        width: 100vw;
+        height: 100vh;
+        padding: 4rem;
+        box-sizing: border-box;
+        overflow-y: auto;
+        display: none; /* Ocultar por defecto, pero no con opacity */
+    }
+        
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+        
+        .title {
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--gold);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        .gold-text { color: var(--gold); }
+        .teal-text { color: var(--teal); }
+        .purple-text { color: var(--purple); }
+        .blue-text { color: var(--blue); }
+        .green-text { color: var(--green); }
+        .red-text { color: var(--red); }
+        .orange-text { color: var(--orange); }
+        
+        .gold-bg { background-color: var(--gold); color: white; }
+        .teal-bg { background-color: var(--teal); color: white; }
+        .purple-bg { background-color: var(--purple); color: white; }
+        .blue-bg { background-color: var(--blue); color: white; }
+        .green-bg { background-color: var(--green); color: white; }
+        .red-bg { background-color: var(--red); color: white; }
+        .orange-bg { background-color: var(--orange); color: white; }
+        .dark-gray-bg { background-color: var(--dark-gray); color: white; }
+        
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            border-left: 4px solid var(--gold);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card.teal-card { border-left-color: var(--teal); }
+        .card.purple-card { border-left-color: var(--purple); }
+        .card.blue-card { border-left-color: var(--blue); }
+        .card.green-card { border-left-color: var(--green); }
+        .card.red-card { border-left-color: var(--red); }
+        .card.orange-card { border-left-color: var(--orange); }
+        
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .nav-btn {
+            position: fixed;
+            bottom: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .nav-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .prev-btn {
+            left: 2rem;
+            background-color: var(--blue);
+        }
+        
+        .next-btn {
+            right: 2rem;
+            background-color: var(--green);
+        }
+        
+        .home-btn {
+            left: calc(50% - 25px);
+            background-color: var(--purple);
+        }
+        
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--blue), var(--purple), var(--green));
+            z-index: 100;
+            transition: width 0.5s ease;
+        }
+        
+        .tech-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .architecture-diagram {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flow-diagram {
+            width: 100%;
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+        
+        .tool-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--gold);
+            transition: all 0.3s ease;
+        }
+        
+        .tool-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tool-card.teal-card { border-left-color: var(--teal); }
+        .tool-card.purple-card { border-left-color: var(--purple); }
+        .tool-card.blue-card { border-left-color: var(--blue); }
+        .tool-card.green-card { border-left-color: var(--green); }
+        .tool-card.red-card { border-left-color: var(--red); }
+        .tool-card.orange-card { border-left-color: var(--orange); }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        .delay-100 {
+            animation-delay: 0.1s;
+        }
+        
+        .delay-200 {
+            animation-delay: 0.2s;
+        }
+        
+        .delay-300 {
+            animation-delay: 0.3s;
+        }
+        
+        .delay-400 {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1 - Introducción -->
+    <!-- Agregar la primera diapositiva con id="slide1" -->
+    <div class="slide" id="slide1">
+        <h1 class="title text-3xl">Integración de IA con Nitro</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="animate-fade-in">
+                <div class="card blue-card">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Asistente inteligente</h3>
+                    <p class="text-gray-700">Potencia Nitro con capacidades avanzadas de IA para responder consultas, analizar datos y automatizar tareas.</p>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-100">
+                <div class="card green-card">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Mayor productividad</h3>
+                    <p class="text-gray-700">Reduce el tiempo de búsqueda de información y automatiza tareas repetitivas para que los equipos se enfoquen en lo importante.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-gray-100 p-6 rounded-lg animate-fade-in delay-200">
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-2xl gold-text mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-bold text-lg mb-2">Propuesta de valor</h4>
+                    <p class="text-gray-700">Integrar capacidades de IA avanzada en Nitro para transformar la forma en que los usuarios interactúan con la información empresarial, mejorando la eficiencia y la toma de decisiones.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- El resto de las diapositivas se mantienen igual -->
+    
+    <!-- Slide 2 - ¿Por qué integrar IA ahora? -->
+    <div class="slide" id="slide2">
+        <h1 class="title text-3xl">¿Por qué integrar IA en este momento estratégico?</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="animate-fade-in">
+                <div class="card purple-card">
+                    <div class="icon-circle purple-bg">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Crecimiento exponencial de datos</h3>
+                    <p class="text-gray-700">Aumento exponencial en la información y necesidad de respuestas contextuales en tiempo real.</p>
+                </div>
+                
+                <div class="card green-card mt-6 animate-fade-in delay-100">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Automatización inteligente</h3>
+                    <p class="text-gray-700">Los agentes inteligentes permiten automatizar tareas, consultar datos empresariales de forma natural y generar contenido útil.</p>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-200">
+                <div class="card orange-card">
+                    <div class="icon-circle orange-bg">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Ventaja competitiva</h3>
+                    <p class="text-gray-700">Fortalece la competitividad al liberar recursos humanos y mejorar la velocidad de decisión.</p>
+                </div>
+                
+                <div class="card blue-card mt-6 animate-fade-in delay-300">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Tendencia global</h3>
+                    <p class="text-gray-700">Se alinea con una tendencia global: asistentes contextuales empresariales (Copilots) están revolucionando la productividad.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Slide 3 - Estado actual de la solución IA -->
+    <div class="slide" id="slide3">
+        <h1 class="title text-3xl">¿Dónde estamos hoy?</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="animate-fade-in">
+                <div class="card teal-card">
+                    <div class="icon-circle teal-bg">
+                        <i class="fab fa-python"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Plataforma funcional</h3>
+                    <p class="text-gray-700">Desarrollada en Python con LangGraph para flujos conversacionales y Prefect para orquestación de tareas.</p>
+                </div>
+                
+                <div class="card blue-card mt-6 animate-fade-in delay-100">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Comunicación e interfaz</h3>
+                    <p class="text-gray-700">La aplicación se comunica mediante API y tiene una interfaz visual funcional para pruebas.</p>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-200">
+                <div class="card purple-card">
+                    <div class="icon-circle purple-bg">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Agentes especializados</h3>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li><span class="green-text font-semibold">Elastic/RAG:</span> recuperación de información</li>
+                        <li><span class="blue-text font-semibold">Pandas Agent:</span> análisis de datos tabulares</li>
+                        <li><span class="red-text font-semibold">Redmine Agent:</span> conexión a sistemas de gestión</li>
+                        <li><span class="orange-text font-semibold">JS Agent:</span> ejecución de snippets de código y visuales</li>
+                    </ul>
+                </div>
+                
+                <div class="card green-card mt-6 animate-fade-in delay-300">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Diseño modular</h3>
+                    <p class="text-gray-700">Cada agente es intercambiable, lo que permite escalar o cambiar componentes sin impacto mayor.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Slide 4 - Arquitectura general -->
+    <div class="slide" id="slide4">
+        <h1 class="title text-3xl">¿Cómo se estructura la solución?</h1>
+        
+        <div class="flow-diagram animate-fade-in">
+            <div class="flex flex-col items-center">
+                <div class="text-center p-5 bg-white rounded-lg shadow-md border border-gray-200 w-full max-w-lg mb-4">
+                    <div class="icon-circle blue-bg mx-auto mb-2">
+                        <i class="fab fa-node-js"></i>
+                    </div>
+                    <h4 class="font-bold">Nitro (Node.js)</h4>
+                </div>
+                
+                <div class="h-8 flex items-center justify-center">
+                    <i class="fas fa-arrow-down text-xl blue-text"></i>
+                    <i class="fas fa-arrow-up text-xl ml-2 green-text"></i>
+                </div>
+                
+                <div class="text-center p-5 bg-white rounded-lg shadow-md border border-gray-200 w-full max-w-lg mb-4">
+                    <div class="icon-circle purple-bg mx-auto mb-2">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h4 class="font-bold">API con token del usuario</h4>
+                </div>
+                
+                <div class="h-8 flex justify-center">
+                    <i class="fas fa-arrow-down text-xl teal-text"></i>
+                </div>
+                
+                <div class="text-center p-5 bg-white rounded-lg shadow-md border border-gray-200 w-full max-w-lg mb-4">
+                    <div class="icon-circle teal-bg mx-auto mb-2">
+                        <i class="fab fa-python"></i>
+                    </div>
+                    <h4 class="font-bold">IA App (Python, LangGraph + Prefect)</h4>
+                </div>
+                
+                <div class="h-8 flex justify-center">
+                    <i class="fas fa-arrow-down text-xl orange-text"></i>
+                </div>
+                
+                <div class="text-center p-5 bg-white rounded-lg shadow-md border border-gray-200 w-full max-w-lg mb-4">
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <span class="tech-badge green-bg">Elastic</span>
+                        <span class="tech-badge blue-bg">RAG</span>
+                        <span class="tech-badge purple-bg">Pandas</span>
+                        <span class="tech-badge orange-bg">JS</span>
+                        <span class="tech-badge red-bg">Redmine</span>
+                    </div>
+                    <h4 class="font-bold mt-2">Agentes especializados</h4>
+                </div>
+                
+                <div class="h-8 flex justify-center">
+                    <i class="fas fa-arrow-down text-xl gold-text"></i>
+                </div>
+                
+                <div class="text-center p-5 bg-white rounded-lg shadow-md border border-gray-200 w-full max-w-lg">
+                    <div class="icon-circle dark-gray-bg mx-auto mb-2">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h4 class="font-bold">Fuentes de datos y sistemas autorizados</h4>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-gray-100 p-6 rounded-lg animate-fade-in delay-200">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-2xl blue-text mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-bold text-lg mb-2">Notas importantes</h4>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li>Nitro se conecta como consumidor y proveedor de datos (API REST)</li>
+                        <li>Los flujos son asincrónicos, y cada tarea se gestiona con Prefect</li>
+                        <li>El token de usuario permite trazabilidad y seguridad en el acceso</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Slide 5 - Flujo de integración técnica -->
+    <div class="slide" id="slide5">
+        <h1 class="title text-3xl">¿Cómo se integrará con Nitro?</h1>
+        
+        <div class="flow-diagram animate-fade-in">
+            <div class="flex flex-col items-center">
+                <div class="flex flex-wrap justify-center gap-4 mb-8">
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue w-64 text-center">
+                            <div class="icon-circle blue-bg mx-auto mb-2">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <h4 class="font-bold">Paso 1</h4>
+                            <p class="text-sm text-gray-600">Nitro realiza solicitud HTTP autenticada con token</p>
+                        </div>
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-teal w-64 text-center">
+                            <div class="icon-circle teal-bg mx-auto mb-2">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h4 class="font-bold">Paso 2</h4>
+                            <p class="text-sm text-gray-600">IA recibe petición y dispara workflow de Prefect</p>
+                        </div>
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-purple w-64 text-center">
+                            <div class="icon-circle purple-bg mx-auto mb-2">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <h4 class="font-bold">Paso 3</h4>
+                            <p class="text-sm text-gray-600">Agentes consultan fuentes de datos validadas</p>
+                        </div>
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-green w-64 text-center">
+                            <div class="icon-circle green-bg mx-auto mb-2">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h4 class="font-bold">Paso 5</h4>
+                            <p class="text-sm text-gray-600">Nitro integra respuesta en frontend o la reutiliza</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-orange w-64 text-center">
+                            <div class="icon-circle orange-bg mx-auto mb-2">
+                                <i class="fas fa-reply"></i>
+                            </div>
+                            <h4 class="font-bold">Paso 4</h4>
+                            <p class="text-sm text-gray-600">Se genera respuesta estructurada (texto, tabla, visual)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Slide 6 - Casos de uso estratégicos -->
+    <div class="slide" id="slide6">
+        <h1 class="title text-3xl">Casos de uso de alto valor</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="animate-fade-in">
+                <div class="card purple-card">
+                    <div class="icon-circle purple-bg">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Consulta de información sensible</h3>
+                    <p class="text-gray-700">Sueldos, performance, contratos → el sistema solo responde si el token del usuario lo permite.</p>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-100">
+                <div class="card green-card">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Visualizaciones comerciales</h3>
+                    <p class="text-gray-700">Nitro pide "ventas por región" y el agente Pandas construye la visualización automáticamente.</p>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-200">
+                <div class="card blue-card">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Redacción automática</h3>
+                    <p class="text-gray-700">Resumen de incidentes de Redmine, redacción de comunicaciones internas y reportes.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-gray-100 p-6 rounded-lg animate-fade-in delay-300">
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-2xl orange-text mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-bold text-lg mb-2">Ejemplo práctico</h4>
+                    <p class="text-gray-700">Un gerente solicita: "Muéstrame el rendimiento de ventas del último trimestre por región y genera un informe ejecutivo". El sistema:</p>
+                    <ol class="list-decimal pl-5 text-gray-700 space-y-2 mt-2">
+                        <li>Verifica permisos del usuario mediante su token</li>
+                        <li>Consulta datos de ventas en sistemas autorizados</li>
+                        <li>Genera visualización con el agente Pandas</li>
+                        <li>Redacta informe ejecutivo con conclusiones clave</li>
+                        <li>Devuelve todo en formato estructurado a Nitro</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Slide 7 - Seguridad y gobernanza -->
+    <div class="slide" id="slide7">
+        <h1 class="title text-3xl">Máxima seguridad y control de acceso</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="animate-fade-in">
+                <div class="card red-card">
+                    <div class="icon-circle red-bg">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Autenticación robusta</h3>
+                    <p class="text-gray-700">Cada solicitud se acompaña de un token JWT con la identidad del usuario.</p>
+                </div>
+                
+                <div class="card orange-card mt-6 animate-fade-in delay-100">
+                    <div class="icon-circle orange-bg">
+                        <i class="fas fa-user-lock"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Delegación de permisos</h3>
+                    <p class="text-gray-700">La IA no maneja permisos directamente: confía en que Nitro ya filtró los datos o las vistas.</p>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-200">
+                <div class="card blue-card">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Acceso centralizado</h3>
+                    <p class="text-gray-700">Si se necesita acceso a datos sensibles, la lógica está centralizada en un API Gateway o en Nitro.</p>
+                </div>
+                
+                <div class="card green-card mt-6 animate-fade-in delay-300">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Prevención de fugas</h3>
+                    <p class="text-gray-700">Se evitan fugas de información al operar siempre sobre recursos ya autorizados.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Slide 8 - Alimentación del RAG -->
+    <!-- Continuing from slide 8 -->
+    <div class="slide" id="slide8">
+        <h1 class="title text-3xl">¿Cómo alimentamos el conocimiento de la IA?</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="animate-fade-in">
+                <div class="card blue-card">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Fuentes de datos</h3>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li>Documentación técnica interna</li>
+                        <li>Manuales de procedimientos</li>
+                        <li>Bases de conocimiento existentes</li>
+                        <li>Reportes y análisis históricos</li>
+                        <li>Documentos legales y normativos</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-100">
+                <div class="card teal-card">
+                    <div class="icon-circle teal-bg">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Proceso de ingesta</h3>
+                    <ol class="list-decimal pl-5 text-gray-700 space-y-2">
+                        <li>Extracción de texto y metadatos</li>
+                        <li>Chunking (división en fragmentos semánticos)</li>
+                        <li>Generación de embeddings vectoriales</li>
+                        <li>Indexación en ElasticSearch</li>
+                        <li>Actualización periódica programada</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-gray-100 p-6 rounded-lg animate-fade-in delay-200">
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-2xl orange-text mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-bold text-lg mb-2">Ventaja clave: Conocimiento contextual</h4>
+                    <p class="text-gray-700">A diferencia de los LLMs genéricos, nuestro sistema tiene acceso a información específica de la empresa, lo que le permite responder con precisión sobre procesos internos, datos históricos y conocimiento organizacional que no está disponible públicamente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9 - Casos de uso específicos -->
+    <div class="slide" id="slide9">
+        <h1 class="title text-3xl">Casos de uso específicos para Nitro</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="animate-fade-in">
+                <div class="card purple-card">
+                    <div class="icon-circle purple-bg">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Asistente de soporte</h3>
+                    <p class="text-gray-700">Responde consultas técnicas basadas en la documentación interna, sugiere soluciones y genera tickets cuando es necesario.</p>
+                    <div class="mt-3 text-sm text-purple-600">
+                        <i class="fas fa-check-circle mr-1"></i> Reduce tiempo de resolución
+                    </div>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-100">
+                <div class="card green-card">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Generador de reportes</h3>
+                    <p class="text-gray-700">Crea informes ejecutivos a partir de datos estructurados, con visualizaciones y análisis de tendencias.</p>
+                    <div class="mt-3 text-sm text-green-600">
+                        <i class="fas fa-check-circle mr-1"></i> Ahorra horas de trabajo manual
+                    </div>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-200">
+                <div class="card blue-card">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-search-dollar"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Análisis financiero</h3>
+                    <p class="text-gray-700">Responde preguntas sobre KPIs, tendencias de ventas y proyecciones basadas en datos históricos.</p>
+                    <div class="mt-3 text-sm text-blue-600">
+                        <i class="fas fa-check-circle mr-1"></i> Democratiza el acceso a insights
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 animate-fade-in delay-300">
+            <div class="card orange-card">
+                <div class="flex items-start">
+                    <div class="icon-circle orange-bg mr-4 flex-shrink-0">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3">Ejemplo de integración en Nitro</h3>
+                        <div class="bg-gray-100 p-4 rounded-lg text-sm font-mono overflow-x-auto">
+                            <pre class="text-gray-800">
+    // Ejemplo de código en Nitro (Node.js)
+    async function consultarAsistenteIA(pregunta, contexto) {
+    try {
+        const respuesta = await fetch('https://api-ia.empresa.com/procesar_query', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${obtenerTokenUsuario()}`
+        },
+        body: JSON.stringify({
+            query: pregunta,
+            context: contexto,
+            user_id: obtenerIdUsuario()
+        })
+        });
+        
+        return await respuesta.json();
+    } catch (error) {
+        console.error('Error al consultar asistente IA:', error);
+        return { error: 'No se pudo procesar la consulta' };
+    }
+    }</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10 - Métricas y KPIs -->
+    <div class="slide" id="slide10">
+        <h1 class="title text-3xl">Métricas de éxito y KPIs</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="animate-fade-in">
+                <div class="card red-card">
+                    <div class="icon-circle red-bg">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Métricas de rendimiento</h3>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li><span class="font-semibold">Tiempo de respuesta:</span> < 2 segundos para consultas simples</li>
+                        <li><span class="font-semibold">Throughput:</span> > 100 consultas/minuto por instancia</li>
+                        <li><span class="font-semibold">Disponibilidad:</span> 99.9% uptime</li>
+                        <li><span class="font-semibold">Escalabilidad:</span> Capacidad de escalar horizontalmente</li>
+                    </ul>
+                </div>
+                
+                <div class="card purple-card mt-6 animate-fade-in delay-100">
+                    <div class="icon-circle purple-bg">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Métricas de calidad</h3>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li><span class="font-semibold">Precisión:</span> > 90% de respuestas correctas</li>
+                        <li><span class="font-semibold">Relevancia:</span> > 85% de respuestas útiles según feedback</li>
+                        <li><span class="font-semibold">Hallucinations:</span> < 5% de respuestas con información incorrecta</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-200">
+                <div class="card green-card">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Métricas de negocio</h3>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li><span class="font-semibold">Reducción de tiempo:</span> -30% en tareas de búsqueda y análisis</li>
+                        <li><span class="font-semibold">Satisfacción:</span> > 80% de usuarios satisfechos</li>
+                        <li><span class="font-semibold">Adopción:</span> > 60% de usuarios activos mensuales</li>
+                        <li><span class="font-semibold">ROI:</span> Recuperación de inversión en < 12 meses</li>
+                    </ul>
+                </div>
+                
+                <div class="card blue-card mt-6 animate-fade-in delay-300">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Monitoreo continuo</h3>
+                    <p class="text-gray-700">Implementaremos un dashboard de monitoreo en tiempo real para seguir estas métricas y ajustar el sistema según sea necesario.</p>
+                    <div class="mt-3">
+                        <span class="tech-badge blue-bg">Grafana</span>
+                        <span class="tech-badge teal-bg">Prometheus</span>
+                        <span class="tech-badge purple-bg">ELK Stack</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11 - Roadmap de evolución -->
+    <div class="slide" id="slide11">
+        <h1 class="title text-3xl">Roadmap de evolución</h1>
+        
+        <div class="flow-diagram animate-fade-in">
+            <div class="flex flex-col items-center">
+                <div class="flex flex-wrap justify-center gap-4 mb-8">
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500 w-64 text-center">
+                            <div class="icon-circle blue-bg mx-auto mb-2">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <h4 class="font-bold">Fase 1: MVP</h4>
+                            <p class="text-sm text-gray-600">Integración básica con Nitro y primeras herramientas</p>
+                            <p class="text-xs text-green-600 mt-2">Q3 2023</p>
+                        </div>
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-teal-500 w-64 text-center">
+                            <div class="icon-circle teal-bg mx-auto mb-2">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <h4 class="font-bold">Fase 2: Expansión</h4>
+                            <p class="text-sm text-gray-600">Nuevos agentes y capacidades analíticas</p>
+                            <p class="text-xs text-blue-600 mt-2">Q4 2023</p>
+                        </div>
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-purple-500 w-64 text-center">
+                            <div class="icon-circle purple-bg mx-auto mb-2">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h4 class="font-bold">Fase 3: Enterprise</h4>
+                            <p class="text-sm text-gray-600">Integración con todos los sistemas corporativos</p>
+                            <p class="text-xs text-purple-600 mt-2">Q1-Q2 2024</p>
+                        </div>
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500 w-64 text-center">
+                            <div class="icon-circle green-bg mx-auto mb-2">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h4 class="font-bold">Fase 4: Autonomía</h4>
+                            <p class="text-sm text-gray-600">Agentes autónomos para tareas complejas</p>
+                            <p class="text-xs text-green-600 mt-2">Q3-Q4 2024</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="h-8 w-1 bg-gray-300"></div>
+                        <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-red-500 w-64 text-center">
+                            <div class="icon-circle red-bg mx-auto mb-2">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <h4 class="font-bold">Fase 5: Ecosistema</h4>
+                            <p class="text-sm text-gray-600">Plataforma completa de IA empresarial</p>
+                            <p class="text-xs text-red-600 mt-2">2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-gray-100 p-6 rounded-lg animate-fade-in delay-300">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-2xl blue-text mr-4 mt-1"></i>
+                <div>
+                    <h4 class="font-bold text-lg mb-2">Enfoque incremental</h4>
+                    <p class="text-gray-700">Cada fase entrega valor inmediato mientras construimos hacia una visión más amplia. Este enfoque nos permite aprender, ajustar y evolucionar basados en feedback real de usuarios y métricas de rendimiento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12 - Equipo y recursos -->
+    <div class="slide" id="slide12">
+        <h1 class="title text-3xl">Equipo y recursos</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div class="animate-fade-in">
+                <div class="card blue-card">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">🧑‍💻 Equipo y Requerimientos para la Integración de IA en Nitro</h3>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li><span class="font-semibold blue-text">Líder técnico:</span> Coordinación general del proyecto</li>
+                        <li><span class="font-semibold blue-text">Equipo de desarrollo</span> 2 desarrolladores python</li>
+                        <li><span class="font-semibold blue-text">Integración Nitro:</span> 1 desarrollador Node.js</li>
+                        <li><span class="font-semibold blue-text">DevOps:</span> 1 ingeniero de infraestructura</li>
+                        <li><span class="font-semibold blue-text">QA:</span> 1 especialista en pruebas</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-100">
+                <div class="card green-card">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Infraestructura</h3>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li><span class="font-semibold green-text">Desarrollo:</span> Entorno containerizado en Azure / Servidor propio</li>
+                        <li><span class="font-semibold green-text">Producción:</span> Kubernetes con autoscaling</li>
+                        <li><span class="font-semibold green-text">Almacenamiento:</span> ElasticSearch cluster</li>
+                        <li><span class="font-semibold green-text">Procesamiento:</span> Apis / GPUs para inferencia</li>
+                        <li><span class="font-semibold green-text">Monitoreo:</span> Stack ELK + Grafana</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 animate-fade-in delay-200">
+            <div class="card purple-card">
+                <div class="flex items-start">
+                    <div class="icon-circle purple-bg mr-4 flex-shrink-0">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3">Cronograma y recursos</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr>
+                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase">Fase</th>
+                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase">Duración</th>
+                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase">Recursos</th>
+                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase">Entregables</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-2 px-4 border-b border-gray-200">Diseño inicial</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">4 semanas</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">Líder + equipo desarrollo</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">Arquitectura detallada</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4 border-b border-gray-200">Desarrollo MVP</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">12 semanas</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">Equipo completo</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">API funcional + 2 agentes</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4 border-b border-gray-200">Integración Nitro</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">8 semanas</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">2 devs + QA</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">Componente Nitro</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4 border-b border-gray-200">Pruebas piloto</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">6 semanas</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">QA + 1 dev</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">Informe de rendimiento</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4 border-b border-gray-200">Despliegue</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">2 semanas</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">DevOps + QA</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">Sistema en producción</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Slide 13 - Estrategia de Implementación Técnica -->
+<div class="slide" id="slide13">
+    <h1 class="title text-3xl">Estrategia de Implementación Técnica</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div class="animate-fade-in">
+            <div class="card blue-card">
+                <div class="icon-circle blue-bg">
+                    <i class="fas fa-server"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Despliegue inicial</h3>
+                <p class="text-gray-700">Se desplegará un servidor en Python desde la primera etapa para exponer los agentes IA como microservicio integrado con Nitro.</p>
+                <div class="mt-3 text-sm text-blue-600">
+                    <i class="fas fa-check-circle mr-1"></i> Rápida integración
+                </div>
+            </div>
+        </div>
+        
+        <div class="animate-fade-in delay-100">
+            <div class="card green-card">
+                <div class="icon-circle green-bg">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Procesamiento IA en fase inicial</h3>
+                <p class="text-gray-700">Las consultas de IA (embeddings, generación, recuperación) serán resueltas mediante APIs de proveedores externos (Google, OpenAI, etc.) para garantizar velocidad y escalabilidad desde el comienzo.</p>
+                <div class="mt-3 text-sm text-green-600">
+                    <i class="fas fa-check-circle mr-1"></i> Sin inversión inicial en hardware
+                </div>
+            </div>
+        </div>
+        
+        <div class="animate-fade-in delay-200">
+            <div class="card purple-card">
+                <div class="icon-circle purple-bg">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Evolución hacia infraestructura propia</h3>
+                <p class="text-gray-700">En paralelo, se desarrollará un plan de migración progresiva a infraestructura dedicada (clúster con GPU o servidores especializados), reduciendo costos a largo plazo y aumentando el control sobre los modelos.</p>
+                <div class="mt-3 text-sm text-purple-600">
+                    <i class="fas fa-check-circle mr-1"></i> Mayor control y personalización
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-8 bg-gray-100 p-6 rounded-lg animate-fade-in delay-300">
+        <div class="flex items-start">
+            <i class="fas fa-lightbulb text-2xl gold-text mr-4 mt-1"></i>
+            <div>
+                <h4 class="font-bold text-lg mb-2">Enfoque híbrido y pragmático</h4>
+                <p class="text-gray-700">Esta estrategia nos permite comenzar rápidamente con una inversión mínima, mientras construimos capacidades internas que optimizarán costos y aumentarán nuestras capacidades técnicas a mediano plazo.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Slide 13 - Preguntas y respuestas -->
+    <div class="slide" id="slide14">
+        <h1 class="title text-3xl">Preguntas frecuentes</h1>
+        
+        <div class="grid grid-cols-1 gap-6 mt-8">
+            <div class="animate-fade-in">
+                <div class="card orange-card">
+                    <div class="flex items-start">
+                        <div class="icon-circle orange-bg mr-4 flex-shrink-0">
+                            <i class="fas fa-question"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">¿Cómo se garantiza la seguridad de la información?</h3>
+                            <p class="text-gray-700">El sistema hereda los permisos de Nitro y solo accede a información que el usuario ya tiene autorizada. Además, todas las comunicaciones están cifradas y se mantiene un registro detallado de accesos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-100">
+                <div class="card blue-card">
+                    <div class="flex items-start">
+                        <div class="icon-circle blue-bg mr-4 flex-shrink-0">
+                            <i class="fas fa-question"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">¿Qué sucede si la IA no puede responder una consulta?</h3>
+                            <p class="text-gray-700">El sistema está diseñado para reconocer sus limitaciones. Cuando no puede responder con confianza, lo indica claramente y sugiere alternativas, como contactar a un especialista o consultar fuentes específicas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-200">
+                <div class="card green-card">
+                    <div class="flex items-start">
+                        <div class="icon-circle green-bg mr-4 flex-shrink-0">
+                            <i class="fas fa-question"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">¿Cómo se mantiene actualizada la información?</h3>
+                            <p class="text-gray-700">Implementamos un proceso de actualización periódica que reindexará automáticamente las fuentes de datos. Además, se pueden programar actualizaciones manuales para contenido crítico que requiera disponibilidad inmediata.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-300">
+                <div class="card purple-card">
+                    <div class="flex items-start">
+                        <div class="icon-circle purple-bg mr-4 flex-shrink-0">
+                            <i class="fas fa-question"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">¿Qué modelos de IA se utilizan?</h3>
+                            <p class="text-gray-700">La arquitectura es agnóstica al modelo, lo que nos permite utilizar diferentes LLMs según las necesidades. Actualmente trabajamos con modelos de Google para el razonamiento general y modelos especializados para tareas específicas como análisis de datos o procesamiento de documentos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- <div class="mt-8 bg-gray-100 p-6 rounded-lg animate-fade-in delay-400">
+            <div class="flex items-start">
+                <i class="fas fa-lightbulb text-2xl gold-text mr-4 mt-1"></i>
+                <div>
+                   <h4 class="font-bold text-lg mb-2">Contacto para más información</h4> 
+                    <p class="text-gray-700">
+
+                    </p>
+                </div>
+            </div>
+        </div> -->
+    </div>
+
+    <!-- Slide 14 - Conclusión -->
+    <div class="slide" id="slide15">
+        <h1 class="title text-3xl">Conclusión y próximos pasos</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="animate-fade-in">
+                <div class="card blue-card">
+                    <div class="icon-circle blue-bg">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Beneficios clave</h3>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                        <li>Acceso intuitivo a información empresarial</li>
+                        <li>Automatización de tareas repetitivas</li>
+                        <li>Análisis de datos más rápido y accesible</li>
+                        <li>Mejora en la toma de decisiones</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-100">
+                <div class="card green-card">
+                    <div class="icon-circle green-bg">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Próximos pasos</h3>
+                    <ol class="list-decimal pl-5 text-gray-700 space-y-2">
+                        <li>Aprobación del proyecto y recursos</li>
+                        <li>Formación del equipo dedicado</li>
+                        <li>Desarrollo del MVP en 12 semanas</li>
+                        <li>Prueba piloto con usuarios clave</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="animate-fade-in delay-200">
+                <div class="card purple-card">
+                    <div class="icon-circle purple-bg">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Visión a largo plazo</h3>
+                    <p class="text-gray-700">Evolucionar hacia un ecosistema completo de IA empresarial que potencie todas las áreas de la organización, mejorando la eficiencia operativa y generando ventajas competitivas sostenibles.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-gray-100 p-6 rounded-lg animate-fade-in delay-300">
+            <div class="flex items-center justify-center">
+                <div class="text-center">
+                    <h4 class="font-bold text-2xl mb-4 gold-text">¡Gracias por su atención!</h4>
+                    <!-- <p class="text-gray-700 text-lg">¿Preguntas o comentarios?</p> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agregar controles de navegación -->
+    <div class="fixed bottom-4 right-4 flex space-x-2 bg-white p-2 rounded-lg shadow-md z-50">
+        <button id="homeBtn" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none">
+            <i class="fas fa-home"></i>
+        </button>
+        <button id="prevBtn" class="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <span id="slideCounter" class="px-3 py-1 bg-gray-200 rounded">1 / 15</span>
+        <button id="nextBtn" class="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+<script>
+       document.addEventListener('DOMContentLoaded', function() {
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const homeBtn = document.getElementById('homeBtn');
+        const slideCounter = document.getElementById('slideCounter');
+        let currentSlide = 0;
+
+        console.log('Total de diapositivas encontradas:', slides.length);
+        
+        // Verificar que tenemos diapositivas
+        if (slides.length === 0) {
+            console.error('No se encontraron diapositivas');
+            return;
+        }
+        
+        // Inicializar diapositivas - mostrar solo la primera
+        function initSlides() {
+            console.log('Inicializando diapositivas');
+            slides.forEach((slide, index) => {
+                console.log(`Diapositiva ${index+1}: ${slide.id}`);
+                if (index === 0) {
+                    slide.style.display = 'block'; // Mostrar primera diapositiva
+                    console.log('Primera diapositiva visible:', slide.id);
+                } else {
+                    slide.style.display = 'none'; // Ocultar el resto
+                }
+            });
+            updateCounter();
+            updateButtonStates();
+        }
+        
+        // Mostrar la diapositiva actual
+        function showSlide(n) {
+            // Ocultar todas las diapositivas
+            slides.forEach(slide => {
+                slide.style.display = 'none';
+            });
+            
+            // Mostrar la diapositiva actual
+            slides[n].style.display = 'block';
+            console.log('Mostrando diapositiva:', slides[n].id);
+            
+            // Actualizar contador
+            updateCounter();
+            
+            // Actualizar estados de botones
+            updateButtonStates();
+        }
+        
+        
+        // Update the slide counter
+        function updateCounter() {
+            if (slideCounter) {
+                slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+            }
+        }
+        
+        // Update button states (disable prev/next when at first/last slide)
+        function updateButtonStates() {
+            if (prevBtn) {
+                prevBtn.disabled = currentSlide === 0;
+                prevBtn.classList.toggle('opacity-50', currentSlide === 0);
+            }
+            
+            if (nextBtn) {
+                nextBtn.disabled = currentSlide === slides.length - 1;
+                nextBtn.classList.toggle('opacity-50', currentSlide === slides.length - 1);
+            }
+        }
+        
+        // Go to previous slide
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+        
+        // Go to next slide
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+        
+        // Go to home/first slide
+        function goHome() {
+            currentSlide = 0;
+            showSlide(currentSlide);
+        }
+        
+        // Add event listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', prevSlide);
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', nextSlide);
+        }
+        
+        if (homeBtn) {
+            homeBtn.addEventListener('click', goHome);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'Home') {
+                goHome();
+            }
+        });
+        
+        // Initialize slides
+        initSlides();
+    });
+</script>
+</body>
+</html>
